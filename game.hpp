@@ -14,7 +14,7 @@ private:
     Apple *apple;
 
     float counter;
-    int Points;
+    int Points{0};
 
 public:
     Game();
