@@ -9,28 +9,21 @@ void Snake::Draw()
     for (segment &s : segments)
         DrawRectangleV(s.Pos, settings::SnakeBlockSize, settings::SnakeColor);
 }
-void Snake::UpdateSegments()
-{
-    for (int i = segments.size() - 1; i >= 1; i--)
-    {
-        segments[i].direction = segments[i - 1].direction;
-        segments[i].turn = segments[i - 1].turn;
-    }
-}
 void Snake::Move()
 {
     HistorySeg = segments[segments.size() - 1];
-    for (segment &s : segments)
+
+    for (int i = segments.size() - 1; i >= 1; i--)
     {
-        s.Pos.x += s.direction.x * (s.turn * 2 - 1);
-        s.Pos.y += s.direction.y * (s.turn * 2 - 1);
+        segments[i] = segments[i - 1];
     }
-    UpdateSegments();
+    segments[0].Pos.x += direction.x * (turn * 2 - 1);
+    segments[0].Pos.y += direction.y * (turn * 2 - 1);
 }
 void Snake::ChangeDirection(bool vertical, bool turn)
 {
-    segments[0].direction = {settings::SnakeBlockSize.x * !vertical, settings::SnakeBlockSize.x * vertical};
-    segments[0].turn = turn;
+    direction = {settings::SnakeBlockSize.x * !vertical, settings::SnakeBlockSize.x * vertical};
+    this->turn = turn;
 }
 void Snake::AddSegment()
 {
