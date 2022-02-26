@@ -2,12 +2,19 @@
 #include "Resources/settings.hpp"
 #include "Resources/board.hpp"
 #include "Resources/snake.hpp"
+#include "Resources/apple.hpp"
+
+#include <string>
+
 class Game
 {
 private:
     Board *board;
     Snake *snake;
+    Apple *apple;
+
     float counter;
+    int Points;
 
 public:
     Game();

@@ -6,6 +6,7 @@ Game::Game()
     InitWindow(settings::ScreenWidth, settings::ScreenHeight, "Snake");
     board = new Board();
     snake = new Snake();
+    apple = new Apple(Points, snake->getSnake());
     counter = 0.f;
 }
 
@@ -27,19 +28,33 @@ void Game::Tick()
 void Game::Update()
 {
     counter += GetFrameTime();
+
+    // Snake Tick //
     if (counter >= settings::MoveTimer)
     {
         snake->Move();
         counter = 0.0f;
+
+        if (snake->isSelfCollide())
+        {
+            // std::cout << "GAME OVER\n";
+        }
+        else if (CheckCollisionRecs(snake->getBound(), apple->getBound()))
+        {
+            delete apple;
+            snake->AddSegment();
+            apple = new Apple(Points, snake->getSnake());
+        }
     }
+
     if (IsKeyPressed(KEY_S))
-        snake->ChangeDirection(true, true);
+        snake->changeDirection(true, true);
     else if (IsKeyPressed(KEY_W))
-        snake->ChangeDirection(true, false);
+        snake->changeDirection(true, false);
     else if (IsKeyPressed(KEY_D))
-        snake->ChangeDirection(false, true);
+        snake->changeDirection(false, true);
     else if (IsKeyPressed(KEY_A))
-        snake->ChangeDirection(false, false);
+        snake->changeDirection(false, false);
     else if (IsKeyPressed(KEY_SPACE))
         snake->AddSegment();
 }
@@ -51,6 +66,8 @@ void Game::Draw()
     // drawing things
     board->Draw();
     snake->Draw();
+    apple->Draw();
+    DrawText(("Points: " + std::to_string(Points)).c_str(), settings::TextPos.x, settings::TextPos.y, settings::TextSize, settings::TextColor);
 
     EndDrawing();
 }
