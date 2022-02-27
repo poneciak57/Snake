@@ -38,7 +38,12 @@ namespace settings
     inline constexpr Color AppleColor{GREEN};
 
     ///         Text Specs          ///
-    inline constexpr Vector2 TextPos{30.0f, 3.0f};
-    inline constexpr Color TextColor{WHITE};
-    inline constexpr int TextSize{20};
+    inline constexpr Vector2 PointsTextPos{30.0f, 3.0f};
+    inline constexpr Color PointsTextColor{WHITE};
+    inline constexpr int PointsTextSize{20};
+
+    ///         Text Specs          ///
+    inline constexpr Vector2 GOTextPos{ScreenWidth / 2 - 135, ScreenHeight / 2 - 55};
+    inline constexpr Color GOTextColor{WHITE};
+    inline constexpr int GOTextSize{20};
 }

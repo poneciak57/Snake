@@ -1,15 +1,14 @@
 #include "game.hpp"
 
-Game::Game()
+Game::Game() : board(new Board()), snake(new Snake()), apple(new Apple(Points, snake->getSnake()))
 {
     SetTargetFPS(settings::FPS);
     InitWindow(settings::ScreenWidth, settings::ScreenHeight, "Snake");
-    board = new Board();
-    snake = new Snake();
-    apple = new Apple(Points, snake->getSnake());
-    counter = 0.f;
-}
 
+    Action[GameState::Game] = {&UpdateGame, &DrawGame, this};
+    Action[GameState::GameOver] = {&UpdateGameOver, &DrawGameOver, this};
+    Action[GameState::Pause] = {&UpdatePause, &DrawGame, this};
+}
 Game::~Game()
 {
     CloseWindow();
@@ -22,10 +21,21 @@ bool Game::GameShouldClose() const
 
 void Game::Tick()
 {
-    Update();
-    Draw();
+    Action[state].Tick();
 }
-void Game::Update()
+
+void Game::ReInitializeEntities()
+{
+    delete board, snake, apple;
+    counter = 0.0f;
+    Points = 0;
+
+    board = new Board();
+    snake = new Snake();
+    apple = new Apple(Points, snake->getSnake());
+}
+
+void Game::UpdateGame()
 {
     counter += GetFrameTime();
 
@@ -37,7 +47,7 @@ void Game::Update()
 
         if (snake->isSelfCollide())
         {
-            // std::cout << "GAME OVER\n";
+            state = GameState::GameOver;
         }
         else if (CheckCollisionRecs(snake->getBound(), apple->getBound()))
         {
@@ -56,18 +66,64 @@ void Game::Update()
     else if (IsKeyPressed(KEY_A))
         snake->changeDirection(false, false);
     else if (IsKeyPressed(KEY_SPACE))
-        snake->AddSegment();
+    {
+        state = GameState::Pause;
+        is_Paused = true;
+    }
 }
-
-void Game::Draw()
+void Game::DrawGame()
 {
-    BeginDrawing();
     ClearBackground(BLACK);
     // drawing things
     board->Draw();
     snake->Draw();
     apple->Draw();
-    DrawText(("Points: " + std::to_string(Points)).c_str(), settings::TextPos.x, settings::TextPos.y, settings::TextSize, settings::TextColor);
+    DrawText(("Points: " + std::to_string(Points)).c_str(),
+             settings::PointsTextPos.x,
+             settings::PointsTextPos.y,
+             settings::PointsTextSize,
+             settings::PointsTextColor);
+    if (is_Paused)
+        DrawPause();
+}
 
+void Game::DrawGameOver()
+{
+    BeginDrawing();
+    ClearBackground(BLACK);
+    DrawText("           Game Over\nPress \"Space\" to continue.",
+             settings::GOTextPos.x,
+             settings::GOTextPos.y,
+             settings::GOTextSize,
+             settings::GOTextColor);
     EndDrawing();
+}
+void Game::UpdateGameOver()
+{
+    if (IsKeyPressed(KEY_SPACE))
+    {
+        state = GameState::Game;
+        ReInitializeEntities();
+    }
+}
+
+void Game::UpdatePause()
+{
+    if (IsKeyPressed(KEY_SPACE))
+    {
+        state = GameState::Game;
+        is_Paused = false;
+    }
+}
+void Game::DrawPause()
+{
+    DrawRectangleV(
+        {0, 0},
+        {settings::ScreenWidth, settings::ScreenHeight},
+        {0, 0, 0, 150});
+    DrawText("             Pause\nPress \"Space\" to continue.",
+             settings::GOTextPos.x,
+             settings::GOTextPos.y,
+             settings::GOTextSize,
+             settings::GOTextColor);
 }
